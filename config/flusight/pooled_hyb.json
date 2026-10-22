@@ -1,0 +1,26 @@
+{
+  "model_id": "DMAPRIME-HYB",
+  "model_version": "3.0",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "refit": false,
+  "calibration": {
+    "wk inc flu hosp": [
+      1.2,
+      1.3,
+      1.3,
+      1.3
+    ],
+    "wk inc flu prop ed visits": [
+      1.7,
+      1.7,
+      1.5,
+      1.5
+    ]
+  },
+  "ed_model": "obshyb",
+  "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping; ed_model: \"obshyb\" submits the ED target from the DMAPRIME-ObsHYB networks (the Flu MetroCast model) instead of this model, except where they have no forecast; \"hyb\" or absent: this model"
+}

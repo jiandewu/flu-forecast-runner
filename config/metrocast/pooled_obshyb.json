@@ -1,0 +1,26 @@
+{
+  "model_id": "DMAPRIME-ObsHYB",
+  "model_version": "1.0",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "calibration": {
+    "Flu ED visits pct": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "flag_inputs": true,
+  "flag_train": "none",
+  "val": [
+    "recent",
+    "last_season"
+  ],
+  "copula": "gaussian",
+  "sample_seed": 0,
+  "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3 (1.0: no widening); flag_inputs: reliability flags of the own series as inputs; flag_train: 'drop' leaves out training windows with flagged label weeks, 'none' keeps them; val: early-stopping mode(s), 'recent' and/or 'last_season', forecasts of all modes averaged; copula: 'gaussian' (correlation of validation errors), 'independent' or 'comonotone'; sample_seed: seed of the copula draws"
+}

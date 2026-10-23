@@ -1,0 +1,3 @@
+cpu: AMD EPYC 7763 64-Core Processor
+torch_cpu_capability: AVX2
+image: ubuntu24 20261012.334.1

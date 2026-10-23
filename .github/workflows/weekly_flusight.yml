@@ -1,4 +1,4 @@
-# Weekly FluSight run of DMAPRIME-HYB (automation/auto_submit.py) on GitHub Actions.
+# Weekly FluSight run of DMAPRIME-HYB (automation/auto_submit.py) on GitHub Actions; the ED target comes from the weekly MetroCast run.
 #
 # Scheduled runs only work from the default branch and do nothing unless the repository variable
 # WEEKLY_MODE is set:

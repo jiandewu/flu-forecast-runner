@@ -1,4 +1,4 @@
-# Weekly Flu MetroCast run of DMAPRIME-ObsHYB on GitHub Actions.
+# Weekly Flu MetroCast run of DMAPRIME-ObsHYB on GitHub Actions; it also writes the FluSight ED forecast.
 #
 # Three jobs (automation/metrocast_weekly.py):
 #   prepare  a quick check first (automation/metrocast_ready.py, standard library only: this week not run

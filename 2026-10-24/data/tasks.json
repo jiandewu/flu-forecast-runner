@@ -1,0 +1,700 @@
+{
+    "schema_version": "https://raw.githubusercontent.com/hubverse-org/schemas/main/v6.0.0/tasks-schema.json",
+    "rounds": [
+        {
+            "round_id_from_variable": true,
+            "round_id": "reference_date",
+            "model_tasks": [
+                {
+                    "task_ids": {
+                        "reference_date": {
+                            "required": null,
+                            "optional": [
+                                "2025-01-25", "2025-02-01", "2025-02-08",
+                                "2025-02-15", "2025-02-22", "2025-03-01", "2025-03-08",
+                                "2025-03-15", "2025-03-22", "2025-03-29", "2025-04-05",
+                                "2025-04-12", "2025-04-19", "2025-04-26", "2025-05-03",
+                                "2025-05-10", "2025-05-17", "2025-05-24", "2025-05-31"
+                            ]
+                        },
+                        "target": {
+                            "required": null,
+                            "optional": ["ILI ED visits"]
+                        },
+                        "horizon": {
+                            "required": null,
+                            "optional": [0, 1, 2, 3, 4]
+                        },
+                        "location": {
+                            "required": null,
+                            "optional": [
+                              "NYC",
+                              "Bronx",
+                              "Brooklyn",
+                              "Manhattan",
+                              "Queens",
+                              "Staten Island"
+                              ]
+                        },
+                        "target_end_date": {
+                            "required": null,
+                            "optional": [
+                                "2025-01-25",
+                                "2025-02-01", "2025-02-08", "2025-02-15", "2025-02-22",
+                                "2025-03-01", "2025-03-08", "2025-03-15", "2025-03-22",
+                                "2025-03-29", "2025-04-05", "2025-04-12", "2025-04-19",
+                                "2025-04-26", "2025-05-03", "2025-05-10", "2025-05-17",
+                                "2025-05-24", "2025-05-31", "2025-06-07", "2025-06-14",
+                                "2025-06-21", "2025-06-28"
+                            ]
+                        }
+                    },
+                    "output_type": {
+                        "quantile": {
+                            "is_required": true,
+                            "output_type_id": {
+                                "required": [
+                                    0.025,
+                                    0.05,
+                                    0.1,
+                                    0.25,
+                                    0.5,
+                                    0.75,
+                                    0.9,
+                                    0.95,
+                                    0.975
+                                ]
+                            },
+                            "value": {
+                                "type": "double",
+                                "minimum": 0
+                            }
+                        }
+                    },
+                    "target_metadata": [
+                        {
+                            "target_id": "ILI ED visits",
+                            "target_name": "ED visits due to ILI",
+                            "target_units": "count",
+                            "target_keys": {
+                                "target": "ILI ED visits"
+                            },
+                            "target_type": "continuous",
+                            "description": "This target represents the count of ED visits due to ILI in the week ending on the date [horizon] weeks after the reference_date, on the target_end_date.",
+                            "is_step_ahead": true,
+                            "time_unit": "week"
+                        }
+                    ]
+                },
+                {
+                    "task_ids": {
+                        "reference_date": {
+                            "required": null,
+                            "optional": [
+                                "2025-01-25", "2025-02-01", "2025-02-08",
+                                "2025-02-15", "2025-02-22", "2025-03-01", "2025-03-08",
+                                "2025-03-15", "2025-03-22", "2025-03-29", "2025-04-05",
+                                "2025-04-12", "2025-04-19", "2025-04-26", "2025-05-03",
+                                "2025-05-10", "2025-05-17", "2025-05-24", "2025-05-31"
+                            ]
+                        },
+                        "target": {
+                            "required": null,
+                            "optional": ["Flu ED visits pct"]
+                        },
+                        "horizon": {
+                            "required": null,
+                            "optional": [-1, 0, 1, 2, 3, 4]
+                        },
+                        "location": {
+                            "required": null,
+                            "optional": [
+                              "Austin",
+                              "Houston",
+                              "Dallas",
+                              "El Paso",
+                              "San Antonio"
+                              ]
+                        },
+                        "target_end_date": {
+                            "required": null,
+                            "optional": [
+                                "2025-01-25",
+                                "2025-02-01", "2025-02-08", "2025-02-15", "2025-02-22",
+                                "2025-03-01", "2025-03-08", "2025-03-15", "2025-03-22",
+                                "2025-03-29", "2025-04-05", "2025-04-12", "2025-04-19",
+                                "2025-04-26", "2025-05-03", "2025-05-10", "2025-05-17",
+                                "2025-05-24", "2025-05-31", "2025-06-07", "2025-06-14",
+                                "2025-06-21", "2025-06-28"
+
+                            ]
+                        }
+                    },
+                    "output_type": {
+                        "quantile": {
+                            "is_required": true,
+                            "output_type_id": {
+                                "required": [
+                                    0.025,
+                                    0.05,
+                                    0.1,
+                                    0.25,
+                                    0.5,
+                                    0.75,
+                                    0.9,
+                                    0.95,
+                                    0.975
+                                ]
+                            },
+                            "value": {
+                                "type": "double",
+                                "minimum": 0,
+                                "maximum" : 100
+                            }
+                        }
+                    },
+                    "target_metadata": [
+                        {
+                            "target_id": "Flu ED visits pct",
+                            "target_name": "Percentage of ED visits due to influenza",
+                            "target_units": "percentage",
+                            "target_keys": {
+                                "target": "Flu ED visits pct"
+                            },
+                            "target_type": "continuous",
+                            "description": "This target represents the percentage of ED visits due to flu in the week ending on the date [horizon] weeks after the reference_date, on the target_end_date.",
+                            "is_step_ahead": true,
+                            "time_unit": "week"
+                        }
+                    ]
+                }
+            ],
+            "submissions_due": {
+                "relative_to": "reference_date",
+                "start": -6,
+                "end": 333
+            },
+            "derived_task_ids": [
+                "target_end_date"
+            ]
+        },
+        {
+            "round_id_from_variable": true,
+            "round_id": "reference_date",
+            "model_tasks": [
+                {
+                    "task_ids": {
+                        "reference_date": {
+                            "required": null,
+                            "optional": [
+                                "2025-11-22", "2025-11-29", "2025-12-06", "2025-12-13",
+                                "2025-12-20", "2025-12-27", "2026-01-03", "2026-01-10",
+                                "2026-01-17", "2026-01-24", "2026-01-31", "2026-02-07",
+                                "2026-02-14", "2026-02-21", "2026-02-28", "2026-03-07",
+                                "2026-03-14", "2026-03-21", "2026-03-28", "2026-04-04",
+                                "2026-04-11", "2026-04-18", "2026-04-25", "2026-05-02",
+                                "2026-05-09", "2026-05-16", "2026-05-23", "2026-05-30"
+                            ]
+                        },
+                        "target": {
+                            "required": null,
+                            "optional": ["ILI ED visits pct"]
+                        },
+                        "horizon": {
+                            "required": [0, 1, 2, 3],
+                            "optional": null
+                        },
+                        "location": {
+                            "required": null,
+                            "optional": [
+                              "nyc"
+                              ]
+                        },
+                        "target_end_date": {
+                            "required": null,
+                            "optional": [
+                                "2025-11-15", 
+                                "2025-11-22", "2025-11-29", "2025-12-06", "2025-12-13",
+                                "2025-12-20", "2025-12-27", "2026-01-03", "2026-01-10",
+                                "2026-01-17", "2026-01-24", "2026-01-31", "2026-02-07",
+                                "2026-02-14", "2026-02-21", "2026-02-28", "2026-03-07",
+                                "2026-03-14", "2026-03-21", "2026-03-28", "2026-04-04",
+                                "2026-04-11", "2026-04-18", "2026-04-25", "2026-05-02",
+                                "2026-05-09", "2026-05-16", "2026-05-23", "2026-05-30",
+                                "2026-06-06", "2026-06-13", "2026-06-20"
+                            ]
+                        }
+                    },
+                    "output_type": {
+                        "quantile": {
+                            "is_required": true,
+                            "output_type_id": {
+                                "required": [
+                                    0.025,
+                                    0.05,
+                                    0.1,
+                                    0.25,
+                                    0.5,
+                                    0.75,
+                                    0.9,
+                                    0.95,
+                                    0.975
+                                ]
+                            },
+                            "value": {
+                                "type": "double",
+                                "minimum": 0,
+                                "maximum" : 100
+                            }
+                        }
+                    },
+                    "target_metadata": [
+                        {
+                            "target_id": "ILI ED visits pct",
+                            "target_name": "Percentage of ED visits due to ILI",
+                            "target_units": "percentage",
+                            "target_keys": {
+                                "target": "ILI ED visits pct"
+                            },
+                            "target_type": "continuous",
+                            "description": "This target represents the percentage of ED visits due to ILI in the week ending on the date [horizon] weeks after the reference_date, on the target_end_date.",
+                            "is_step_ahead": true,
+                            "time_unit": "week"
+                        }
+                    ]
+                },
+                {
+                    "task_ids": {
+                        "reference_date": {
+                            "required": null,
+                            "optional": [
+                                "2025-11-22", "2025-11-29", "2025-12-06", "2025-12-13",
+                                "2025-12-20", "2025-12-27", "2026-01-03", "2026-01-10",
+                                "2026-01-17", "2026-01-24", "2026-01-31", "2026-02-07",
+                                "2026-02-14", "2026-02-21", "2026-02-28", "2026-03-07",
+                                "2026-03-14", "2026-03-21", "2026-03-28", "2026-04-04",
+                                "2026-04-11", "2026-04-18", "2026-04-25", "2026-05-02",
+                                "2026-05-09", "2026-05-16", "2026-05-23", "2026-05-30"
+                            ]
+                        },
+                        "target": {
+                            "required": null,
+                            "optional": ["Flu ED visits pct"]
+                        },
+                        "horizon": {
+                            "required": [0, 1, 2, 3],
+                            "optional": null
+                        },
+                        "location": {
+                            "required": null,
+                            "optional": [
+                              "denver",
+                              "mesa",
+                              "colorado-springs",
+                              "weld",
+                              "boulder",
+                              "larimer",
+                              "colorado",
+                              "savannah",
+                              "floyd",
+                              "hall",
+                              "marietta",
+                              "macon",
+                              "henry",
+                              "cherokee",
+                              "athens",
+                              "south-augusta",
+                              "columbus",
+                              "la-grange",
+                              "georgia",
+                              "indianapolis",
+                              "indiana",
+                              "bangor",
+                              "portland",
+                              "maine",
+                              "baltimore",
+                              "frederick",
+                              "montgomery",
+                              "harford",
+                              "maryland",
+                              "worcester",
+                              "pittsfield",
+                              "boston",
+                              "springfield",
+                              "new-bedford",
+                              "lynn",
+                              "massachusetts",
+                              "st-paul",
+                              "duluth",
+                              "minneapolis",
+                              "st-cloud",
+                              "rochester",
+                              "minnesota",
+                              "nenc",
+                              "senc",
+                              "fay-area",
+                              "rtp-area",
+                              "triad-area",
+                              "wnc",
+                              "clt-area",
+                              "north-carolina",                                
+                              "portland-or",
+                              "salem",
+                              "deschutes",
+                              "eugene",
+                              "medford",
+                              "oregon", 
+                              "columbia",
+                              "greenville",
+                              "florence",
+                              "charleston",
+                              "rock-hill",
+                              "horry",
+                              "south-carolina",
+                              "houston",
+                              "san-antonio",
+                              "beaumont",
+                              "el-paso",
+                              "austin",
+                              "dallas",
+                              "texas",
+                              "provo",
+                              "salt-lake-city",
+                              "ogden",
+                              "utah",
+                              "roanoke",
+                              "virginia"
+                              ]
+                        },
+                        "target_end_date": {
+                            "required": null,
+                            "optional": [
+                                "2025-11-15", 
+                                "2025-11-22", "2025-11-29", "2025-12-06", "2025-12-13",
+                                "2025-12-20", "2025-12-27", "2026-01-03", "2026-01-10",
+                                "2026-01-17", "2026-01-24", "2026-01-31", "2026-02-07",
+                                "2026-02-14", "2026-02-21", "2026-02-28", "2026-03-07",
+                                "2026-03-14", "2026-03-21", "2026-03-28", "2026-04-04",
+                                "2026-04-11", "2026-04-18", "2026-04-25", "2026-05-02",
+                                "2026-05-09", "2026-05-16", "2026-05-23", "2026-05-30",
+                                "2026-06-06", "2026-06-13", "2026-06-20"
+                            ]
+                        }
+                    },
+                    "output_type": {
+                        "quantile": {
+                            "is_required": true,
+                            "output_type_id": {
+                                "required": [
+                                    0.025,
+                                    0.05,
+                                    0.1,
+                                    0.25,
+                                    0.5,
+                                    0.75,
+                                    0.9,
+                                    0.95,
+                                    0.975
+                                ]
+                            },
+                            "value": {
+                                "type": "double",
+                                "minimum": 0,
+                                "maximum" : 100
+                            }
+                        }
+                    },
+                    "target_metadata": [
+                        {
+                            "target_id": "Flu ED visits pct",
+                            "target_name": "Percentage of ED visits due to influenza",
+                            "target_units": "percentage",
+                            "target_keys": {
+                                "target": "Flu ED visits pct"
+                            },
+                            "target_type": "continuous",
+                            "description": "This target represents the percentage of ED visits due to flu in the week ending on the date [horizon] weeks after the reference_date, on the target_end_date.",
+                            "is_step_ahead": true,
+                            "time_unit": "week"
+                        }
+                    ]
+                }
+            ],
+            "submissions_due": {
+                "relative_to": "reference_date",
+                "start": -6,
+                "end": 1
+            },
+            "derived_task_ids": [
+                "target_end_date"
+            ]
+        },
+        {
+            "round_id_from_variable": true,
+            "round_id": "reference_date",
+            "file_format": ["parquet"],
+            "model_tasks": [
+                {
+                    "task_ids": {
+                        "reference_date": {
+                            "required": null,
+                            "optional": [
+                                "2026-10-24", "2026-10-31",
+                                "2026-11-07", "2026-11-14", "2026-11-21", "2026-11-28", "2026-12-05",
+                                "2026-12-12", "2026-12-19", "2026-12-26", "2027-01-02", "2027-01-09",
+                                "2027-01-16", "2027-01-23", "2027-01-30", "2027-02-06", "2027-02-13",
+                                "2027-02-20", "2027-02-27", "2027-03-06", "2027-03-13", "2027-03-20",
+                                "2027-03-27", "2027-04-03", "2027-04-10", "2027-04-17", "2027-04-24",
+                                "2027-05-01", "2027-05-08", "2027-05-15", "2027-05-22"
+                            ]
+                        },
+                        "target": {
+                            "required": null,
+                            "optional": ["Flu ED visits pct"]
+                        },
+                        "location": {
+                            "required": null,
+                            "optional": [
+                              "denver",
+                              "mesa",
+                              "colorado-springs",
+                              "weld",
+                              "boulder",
+                              "larimer",
+                              "colorado",
+                              "savannah",
+                              "floyd",
+                              "hall",
+                              "marietta",
+                              "macon",
+                              "henry",
+                              "cherokee",
+                              "athens",
+                              "south-augusta",
+                              "columbus",
+                              "la-grange",
+                              "georgia",
+                              "indianapolis",
+                              "indiana",
+                              "bangor",
+                              "portland",
+                              "maine",
+                              "baltimore",
+                              "frederick",
+                              "montgomery",
+                              "harford",
+                              "maryland",
+                              "worcester",
+                              "pittsfield",
+                              "boston",
+                              "springfield",
+                              "new-bedford",
+                              "lynn",
+                              "massachusetts",
+                              "st-paul",
+                              "duluth",
+                              "minneapolis",
+                              "st-cloud",
+                              "rochester",
+                              "minnesota",
+                              "nyc",
+                              "new-york",
+                              "nenc",
+                              "senc",
+                              "fay-area",
+                              "rtp-area",
+                              "triad-area",
+                              "wnc",
+                              "clt-area",
+                              "north-carolina",                                
+                              "portland-or",
+                              "salem",
+                              "deschutes",
+                              "eugene",
+                              "medford",
+                              "oregon", 
+                              "columbia",
+                              "greenville",
+                              "florence",
+                              "charleston",
+                              "rock-hill",
+                              "horry",
+                              "south-carolina",
+                              "houston",
+                              "san-antonio",
+                              "beaumont",
+                              "fort-worth",
+                              "tyler",
+                              "el-paso",
+                              "austin",
+                              "dallas",
+                              "amarillo",
+                              "lubbock",
+                              "mcallen",
+                              "corpus-christi",
+                              "killeen",
+                              "waco",
+                              "bryan",
+                              "denton",
+                              "lake-jackson",
+                              "san-marcos",
+                              "brownsville",
+                              "galveston",
+                              "laredo",
+                              "texas",
+                              "bear-river",
+                              "central",
+                              "davis",
+                              "salt-lake",
+                              "san-juan",
+                              "southeast",
+                              "southwest",
+                              "summit",
+                              "tooele",
+                              "tri-county",
+                              "utah-county",
+                              "wasatch",
+                              "weber-morgan",
+                              "utah",
+                              "roanoke",
+                              "virginia"
+                              ]
+                        },
+                        "target_end_date": {
+                            "required": null,
+                            "optional": [
+                                "2026-10-24", "2026-10-31",
+                                "2026-11-07", "2026-11-14", "2026-11-21", "2026-11-28", "2026-12-05",
+                                "2026-12-12", "2026-12-19", "2026-12-26", "2027-01-02", "2027-01-09",
+                                "2027-01-16", "2027-01-23", "2027-01-30", "2027-02-06", "2027-02-13",
+                                "2027-02-20", "2027-02-27", "2027-03-06", "2027-03-13", "2027-03-20",
+                                "2027-03-27", "2027-04-03", "2027-04-10", "2027-04-17", "2027-04-24",
+                                "2027-05-01", "2027-05-08", "2027-05-15", "2027-05-22", "2027-05-29",
+                                "2027-06-05", "2027-06-12"
+                            ]
+                        }
+                    },
+                    "output_type": {
+                        "sample": {
+                            "is_required": true,
+                            "output_type_id_params": {
+                                "type": "character",
+                                "max_length": 20,
+                                "min_samples_per_task": 100,
+                                "max_samples_per_task": 100,
+                                "compound_taskid_set": [
+                                    "reference_date", 
+                                    "target",
+                                    "location"
+                                ]
+                            },
+                            "value": {
+                                "type": "double",
+                                "minimum": 0,
+                                "maximum" : 100
+                            }
+                        }
+                    },
+                    "target_metadata": [
+                        {
+                            "target_id": "Flu ED visits pct",
+                            "target_name": "Percentage of ED visits due to influenza",
+                            "target_units": "percentage",
+                            "target_keys": {
+                                "target": "Flu ED visits pct"
+                            },
+                            "target_type": "continuous",
+                            "description": "This target represents the percentage of ED visits due to flu in the week ending on the target_end_date.",
+                            "is_step_ahead": true,
+                            "time_unit": "week"
+                        }
+                    ]
+                },
+                {
+                    "task_ids": {
+                        "reference_date": {
+                            "required": null,
+                            "optional": [
+                                "2026-10-24", "2026-10-31",
+                                "2026-11-07", "2026-11-14", "2026-11-21", "2026-11-28", "2026-12-05",
+                                "2026-12-12", "2026-12-19", "2026-12-26", "2027-01-02", "2027-01-09",
+                                "2027-01-16", "2027-01-23", "2027-01-30", "2027-02-06", "2027-02-13",
+                                "2027-02-20", "2027-02-27", "2027-03-06", "2027-03-13", "2027-03-20",
+                                "2027-03-27", "2027-04-03", "2027-04-10", "2027-04-17", "2027-04-24",
+                                "2027-05-01", "2027-05-08", "2027-05-15", "2027-05-22"                            ]
+                        },
+                        "target": {
+                            "required": null,
+                            "optional": ["Flu hosp admits"]
+                        },
+                        "location": {
+                            "required": null,
+                            "optional": [
+                                "bay-area", 
+                                "central-california", 
+                                "greater-sierra-sacramento", 
+                                "los-angeles", 
+                                "rural-north", 
+                                "southern-california",
+                                "california"
+                              ]
+                        },
+                        "target_end_date": {
+                            "required": null,
+                            "optional": [
+                                "2026-10-24", "2026-10-31",
+                                "2026-11-07", "2026-11-14", "2026-11-21", "2026-11-28", "2026-12-05",
+                                "2026-12-12", "2026-12-19", "2026-12-26", "2027-01-02", "2027-01-09",
+                                "2027-01-16", "2027-01-23", "2027-01-30", "2027-02-06", "2027-02-13",
+                                "2027-02-20", "2027-02-27", "2027-03-06", "2027-03-13", "2027-03-20",
+                                "2027-03-27", "2027-04-03", "2027-04-10", "2027-04-17", "2027-04-24",
+                                "2027-05-01", "2027-05-08", "2027-05-15", "2027-05-22", "2027-05-29",
+                                "2027-06-05", "2027-06-12"
+                            ]
+                        }
+                    },
+                    "output_type": {
+                        "sample": {
+                            "is_required": true,
+                            "output_type_id_params": {
+                                "type": "character",
+                                "max_length": 20,
+                                "min_samples_per_task": 100,
+                                "max_samples_per_task": 100,
+                                "compound_taskid_set": [
+                                    "reference_date", 
+                                    "target",
+                                    "location"
+                                ]
+                            },
+                            "value": {
+                                "type": "double",
+                                "minimum": 0
+                            }
+                        }
+                    },
+                    "target_metadata": [
+                        {
+                            "target_id": "Flu hosp admits",
+                            "target_name": "Number of hospital admissions due to flu",
+                            "target_units": "count",
+                            "target_keys": {
+                                "target": "Flu hosp admits"
+                            },
+                            "target_type": "continuous",
+                            "description": "This target represents the number of new hospital admissions due to flu in the week ending on the target_end_date.",
+                            "is_step_ahead": true,
+                            "time_unit": "week"
+                        }
+                    ]
+                }
+            ],
+            "submissions_due": {
+                "relative_to": "reference_date",
+                "start": -6,
+                "end": -2
+            }
+        }
+    ],
+    "output_type_id_datatype": "auto"
+}

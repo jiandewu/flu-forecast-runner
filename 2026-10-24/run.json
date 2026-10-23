@@ -1,0 +1,109 @@
+{
+  "created_at": "2026-10-23T12:51:12+00:00",
+  "hub": "metrocast",
+  "model": "pooled_obshyb",
+  "reference_date": "2026-10-24",
+  "submission": {
+    "file": "2026-10-24-DMAPRIME-ObsHYB.parquet",
+    "sha256": "cbc60affe9fa7a2b64b0480ed3e3939a9d680acda369fea6fcc7b41ad8dc2b7d"
+  },
+  "git_commit": "c59cfd1fb7eab944bfedc5ceccf766a950ef8b27",
+  "git_dirty": false,
+  "config": {
+    "model_id": "DMAPRIME-ObsHYB",
+    "model_version": "1.0",
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "calibration": {
+      "Flu ED visits pct": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "flag_inputs": true,
+    "flag_train": "none",
+    "val": [
+      "recent",
+      "last_season"
+    ],
+    "copula": "gaussian",
+    "sample_seed": 0,
+    "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3 (1.0: no widening); flag_inputs: reliability flags of the own series as inputs; flag_train: 'drop' leaves out training windows with flagged label weeks, 'none' keeps them; val: early-stopping mode(s), 'recent' and/or 'last_season', forecasts of all modes averaged; copula: 'gaussian' (correlation of validation errors), 'independent' or 'comonotone'; sample_seed: seed of the copula draws"
+  },
+  "data_files": {
+    "latest-data.csv": "e1dc02bce062fd88d293a3695d2b59c48fd9fb7c86af6967b1fde0a77ceba493",
+    "locations.csv": "f4f3a41735e1d80ec33f534f7833fdffccd3830e91635f717b458965c088076a",
+    "tasks.json": "5b50167cfc99723b31a1cda94d3361380f7526a4ee61148d19dd8fab0e479fa5",
+    "nssp.parquet": "a599b71d282b33279dbc7c203949675858fab4de89100f2d229a380a5f2081b4",
+    "nssp_thresholds.csv": "0a51ba6a35d35251ee711043d53da2690a30040ec591d6a3eb1f3274c7ef973c"
+  },
+  "argv": [
+    "automation.metrocast_weekly",
+    "combine",
+    "--no-upload",
+    "--force"
+  ],
+  "synced": false,
+  "versions": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "torch": "2.10.0+cpu",
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39"
+  },
+  "parts": [
+    {
+      "val": "recent",
+      "seed": 0,
+      "data_through": "2026-10-17",
+      "cpu": "AMD EPYC 9V45 96-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX512"
+    },
+    {
+      "val": "recent",
+      "seed": 1,
+      "data_through": "2026-10-17",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX512"
+    },
+    {
+      "val": "recent",
+      "seed": 2,
+      "data_through": "2026-10-17",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX2"
+    },
+    {
+      "val": "last_season",
+      "seed": 0,
+      "data_through": "2026-10-17",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX2"
+    },
+    {
+      "val": "last_season",
+      "seed": 1,
+      "data_through": "2026-10-17",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX2"
+    },
+    {
+      "val": "last_season",
+      "seed": 2,
+      "data_through": "2026-10-17",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX2"
+    }
+  ]
+}

@@ -32,10 +32,10 @@ name: weekly-metrocast
 
 on:
   schedule:
-    # Every 20 minutes on Wednesdays, 12:07-20:27 EDT / 11:07-19:27 EST (cron is UTC).
+    # Every 20 minutes on Wednesdays, 09:07-20:47 EST / 10:07-21:47 EDT (cron is UTC).
     # Data are often released before 14:00 ET; submissions are due at 20:00 ET; a run takes about 20 minutes.
-    - cron: '7,27,47 16-23 * * 3'
-    - cron: '7,27 0 * * 4'
+    - cron: '7,27,47 14-23 * * 3'
+    - cron: '7,27,47 0-1 * * 4'
   workflow_dispatch:
     inputs:
       mode:

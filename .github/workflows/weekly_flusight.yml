@@ -30,9 +30,9 @@ name: weekly-flusight
 
 on:
   schedule:
-    # Every 20 minutes on Wednesdays, 12:07-22:47 EDT / 11:07-21:47 EST (cron is UTC). GitHub delays and
+    # Every 20 minutes on Wednesdays, 09:07-21:47 EST / 10:07-22:47 EDT (cron is UTC). GitHub delays and
     # drops scheduled runs under load (Oct 7: 2 of 7 hourly triggers ran, one 3 hours late), hence many.
-    - cron: '7,27,47 16-23 * * 3'
+    - cron: '7,27,47 14-23 * * 3'
     - cron: '7,27,47 0-2 * * 4'
   workflow_dispatch:
     inputs:

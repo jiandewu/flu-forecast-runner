@@ -1,6 +1,6 @@
 # Weekly Flu MetroCast run of DMAPRIME-ObsHYB on GitHub Actions; it also writes the FluSight ED forecast.
 #
-# Three jobs (automation/metrocast_weekly.py):
+# Jobs (automation/metrocast_weekly.py):
 #   prepare  a quick check first (automation/metrocast_ready.py, standard library only: this week not run
 #            yet, hub data through the last Saturday; otherwise the run stops here in seconds), then
 #            the full checks (repository on its default branch and clean, the same two, the fork has
@@ -11,6 +11,7 @@
 #   combine  averages the networks, draws the 100 trajectories, writes and checks the Parquet file
 #            and flusight_ed.csv (read by the FluSight run), syncs the fork, uploads the file and
 #            opens the PR; saves the run record and opens an issue
+#   trigger-flusight  after a successful combine, starts weekly_flusight.yml in the same mode
 # The result equals the single-process `python -m dmaprime.forecast --hub metrocast --model pooled_obshyb`
 # on one machine; here each network may run on a different CPU (recorded in run.json, `parts`).
 #
@@ -222,6 +223,22 @@ jobs:
             commit -q -m "$MODE run $(date -u +%Y-%m-%dT%H:%MZ) from ${GITHUB_REF_NAME}@${GITHUB_SHA::7}"
           git push origin "HEAD:refs/heads/$RUNS_BRANCH"
       - *logs
+
+  # Scheduled triggers arrive hours late or not at all (Oct 21 and 28: first run after 19:00 ET), so
+  # a successful combine starts this week's FluSight run in the same mode instead of waiting for one.
+  # A workflow_dispatch made with GITHUB_TOKEN does start a run; FluSight still checks that the week
+  # is not done yet, so a scheduled or manual run that comes first is not repeated.
+  trigger-flusight:
+    needs: combine
+    if: needs.combine.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Start the FluSight run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run weekly_flusight.yml -R "$GITHUB_REPOSITORY" --ref "$RUN_BRANCH" -f mode="$MODE"
 
   notify:
     needs: [prepare, train, combine]

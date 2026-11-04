@@ -45,7 +45,8 @@ TARGETS = {
 }
 
 # Plausibility checks run by the hub on the upper bound of the forecast distribution
-MAX_HOSP_SHARE_OF_POP = 0.30
+# (hub-config/validations.yml; admissions limit lowered from 30% to 0.1% of population on 2026-10-29)
+MAX_HOSP_SHARE_OF_POP = 0.001
 MAX_ED_PROP = 0.25
 # The hub requires integer forecasts of admission counts
 INTEGER_TARGETS = ('wk inc flu hosp',)

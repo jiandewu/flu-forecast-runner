@@ -9,7 +9,7 @@ data/flusight/tasks.json) plus README requirements the hub's own checks do not e
     - target_end_date = reference_date + horizon weeks
     - values finite and within [minimum, maximum]; admission counts are integers
     - quantiles non-decreasing
-    - plausibility: admissions <= 30% of population, ED proportion <= 0.25
+    - plausibility: admissions <= 0.1% of population (hub.MAX_HOSP_SHARE_OF_POP), ED proportion <= 0.25
 
     python -m automation.check_submission <file> [--no-window]
 """
@@ -143,7 +143,7 @@ def check(path, window=True, today=None):
             limit = rows['location'].map(pops) * hub.MAX_HOSP_SHARE_OF_POP
             over = rows['value'] > limit
             if over.any():
-                errors.append(f'{label} {over.sum()} values above 30% of population '
+                errors.append(f'{label} {over.sum()} values above {hub.MAX_HOSP_SHARE_OF_POP:.1%} of population '
                               f'({sorted(rows.loc[over, "location"].unique())})')
         elif target == 'wk inc flu prop ed visits' and (rows['value'] > hub.MAX_ED_PROP).any():
             errors.append(f'{label} {(rows["value"] > hub.MAX_ED_PROP).sum()} values above {hub.MAX_ED_PROP}')

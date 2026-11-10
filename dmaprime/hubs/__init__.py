@@ -8,6 +8,6 @@
     load_panel(frames=None, data_dir=None) -> dmaprime.data.panel.Panel
     write_submission(forecasts, model_id, out_dir, data_dir=None) -> path of the submission file
 """
-from dmaprime.hubs import flusight, metrocast
+from dmaprime.hubs import covid, flusight, metrocast, rsv
 
-HUBS = {flusight.NAME: flusight, metrocast.NAME: metrocast}
+HUBS = {flusight.NAME: flusight, metrocast.NAME: metrocast, covid.NAME: covid, rsv.NAME: rsv}

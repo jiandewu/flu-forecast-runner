@@ -1,0 +1,56 @@
+{
+  "created_at": "2026-11-11T13:40:05+00:00",
+  "hub": "rsv",
+  "model": "pooled_hyb",
+  "reference_date": "2026-11-07",
+  "submission": {
+    "file": "2026-11-07-DMAPRIME-HYB.csv",
+    "sha256": "a1f8b8f7a07b00323c963bb59249e6a5fc36f88fd1c701549b2b5329e07c0da2"
+  },
+  "git_commit": "2a420449ab6b9959dcee628503b961674c24b72e",
+  "git_dirty": false,
+  "config": {
+    "model_id": "DMAPRIME-HYB",
+    "model_version": "1.0",
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "refit": false,
+    "calibration": {
+      "wk inc rsv hosp": [
+        1.0,
+        1.1,
+        1.1,
+        1.1
+      ],
+      "wk inc rsv prop ed visits": [
+        1.4,
+        1.7,
+        1.8,
+        1.8
+      ]
+    },
+    "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping"
+  },
+  "data_files": {
+    "target-hospital-admissions.csv": "60b2387a6ca8bdedd494b7ca8a1fc7a0a9fb3846202cebf0aacb1256d512b915",
+    "target-ed-visits-prop.csv": "4419824edb4c6814cb593ccf1e0c737b72991b36b60083e4e018694490ab2e0e",
+    "locations.csv": "96b14b7376cd5ba6a4dd44b0cae860fdb1a40ddec776328c1b3c39c8c14b0636"
+  },
+  "argv": [
+    "--hub",
+    "rsv",
+    "--model",
+    "pooled_hyb"
+  ],
+  "synced": true,
+  "versions": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "torch": "2.10.0+cpu",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39"
+  }
+}

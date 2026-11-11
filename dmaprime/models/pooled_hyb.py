@@ -9,6 +9,8 @@ Inputs per week of the 10-week window (all leakage-free for a given cutoff):
     aux (the hub's co-signal target, same location): same three + availability flag
     national target: z relative to the last week, weekly change
     sin/cos of the ISO week
+    optional (config 'local_season'): sin/cos of the week relative to the location's typical peak
+    week (peak_phase: circular mean of past seasons' peak weeks of the target and aux)
 
 Hub-specific settings (targets, quantile levels, horizons, national location) come from the
 `hub` module passed in; see dmaprime/hubs/__init__.py.
@@ -37,6 +39,9 @@ MAX_EPOCHS = 200
 PATIENCE = 15
 VAL_WEEKS = 8          # most recent anchor weeks held out for early stopping
 INPUT_NOISE = 0.01
+# Default of the local-season inputs when a forecaster is created without local_season
+LOCAL_SEASON = False
+PEAK_MIN_WEEKS = 40    # a season (August-July) counts for the typical peak week with this many observed weeks
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -50,7 +55,35 @@ def _level(z, cutoff):
     return (z - mu) / np.where(np.isfinite(sd) & (sd > 1e-3), sd, 1.0)
 
 
-def build_windows(hub, panel, target, cutoff, anchors):
+def peak_phase(panel, series, cutoff):
+    """Typical peak week of each location as an angle (radians), from the seasons (August-July)
+    that ended by cutoff: circular mean of each season's peak week over the given z arrays
+    (e.g. the target and its co-signal). NaN where no season qualifies."""
+    dates = panel.dates[:cutoff + 1]
+    season = np.where(dates.month >= 8, dates.year, dates.year - 1)
+    angle = 2 * np.pi * dates.isocalendar().week.to_numpy(dtype=float) / 52.18
+    last_done = dates[-1].year - 1 if dates[-1].month >= 8 else dates[-1].year - 2   # last season ended by cutoff
+    L = series[0].shape[1]
+    sin_sum, cos_sum, n = np.zeros(L), np.zeros(L), np.zeros(L)
+    for z in series:
+        hist = z[:cutoff + 1]
+        for sy in np.unique(season):
+            if sy > last_done:
+                continue
+            rows = np.flatnonzero(season == sy)
+            block = hist[rows]
+            ok = np.isfinite(block).sum(axis=0) >= PEAK_MIN_WEEKS
+            if not ok.any():
+                continue
+            peak = np.nanargmax(np.where(np.isfinite(block), block, -np.inf), axis=0)
+            a = angle[rows][peak]
+            sin_sum += np.where(ok, np.sin(a), 0)
+            cos_sum += np.where(ok, np.cos(a), 0)
+            n += ok
+    return np.where(n > 0, np.arctan2(sin_sum, cos_sum), np.nan)
+
+
+def build_windows(hub, panel, target, cutoff, anchors, local_season=False):
     """Inputs (and targets where known) for every (anchor, location) with a complete window.
 
     Only data at or before `cutoff` is used for location statistics; inputs use data up to
@@ -64,6 +97,13 @@ def build_windows(hub, panel, target, cutoff, anchors):
     lev, aux_lev = _level(z, cutoff), _level(aux, cutoff)
     dz = np.vstack([np.full((1, z.shape[1]), np.nan), np.diff(z, axis=0)])
     aux_dz = np.vstack([np.full((1, aux.shape[1]), np.nan), np.diff(aux, axis=0)])
+    if local_season:
+        phase = peak_phase(panel, [z, aux], cutoff)
+        phase = np.where(np.isfinite(phase), phase, phase[nat_col])
+        week_angle = 2 * np.pi * panel.dates.isocalendar().week.to_numpy(dtype=float) / 52.18
+        known = np.isfinite(phase)
+        rel = week_angle[:, None] - np.where(known, phase, 0.0)[None, :]
+        local = np.stack([np.where(known, np.sin(rel), 0.0), np.where(known, np.cos(rel), 0.0)], axis=-1)  # (T, L, 2)
 
     X, Y, keys = [], [], []
     W = INPUT_WINDOW
@@ -84,10 +124,10 @@ def build_windows(hub, panel, target, cutoff, anchors):
             aux_ok = np.isfinite(a_rel).all() and np.isfinite(aux_dz[win, l]).all()
             aux_feats = (np.stack([a_rel, aux_dz[win, l], aux_lev[win, l], np.ones(W)], axis=1)
                          if aux_ok else np.zeros((W, 4)))
-            feats = np.column_stack([
-                z_win[:, l] - z[t, l], dz_win[:, l], lev[win, l],
-                aux_feats, nat, nat_dz, panel.season[win],
-            ])
+            cols = [z_win[:, l] - z[t, l], dz_win[:, l], lev[win, l], aux_feats, nat, nat_dz, panel.season[win]]
+            if local_season:
+                cols.append(local[win, l])
+            feats = np.column_stack(cols)
             y = (future[:, l] - z[t, l]) if future is not None and len(future) == H else np.full(H, np.nan)
             X.append(feats)
             Y.append(y)
@@ -105,10 +145,11 @@ def pinball_loss(preds, target, quantiles):
 class PooledHybForecaster:
     """Feature scaler + HybridCNNForecaster trained on all locations for one target of a hub."""
 
-    def __init__(self, hub, target, seed=0):
+    def __init__(self, hub, target, seed=0, local_season=None):
         self.hub = hub
         self.target = target
         self.seed = seed
+        self.local_season = LOCAL_SEASON if local_season is None else bool(local_season)
         self.model = None
         self.mean = self.std = None
 
@@ -144,7 +185,7 @@ class PooledHybForecaster:
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
         anchors = range(INPUT_WINDOW, cutoff - hub.HORIZONS + 1)
-        X, Y, keys = build_windows(hub, panel, self.target, cutoff, anchors)
+        X, Y, keys = build_windows(hub, panel, self.target, cutoff, anchors, self.local_season)
         ok = np.isfinite(Y).all(axis=1)
         X, Y, keys = X[ok], Y[ok], keys[ok]
 
@@ -201,7 +242,7 @@ class PooledHybForecaster:
 
     def predict_delta(self, panel, origin):
         """Quantiles of z change for every location at origin index: (keys, deltas (N, H, Q))."""
-        X, _, keys = build_windows(self.hub, panel, self.target, origin, [origin])
+        X, _, keys = build_windows(self.hub, panel, self.target, origin, [origin], self.local_season)
         self.model.eval()
         with torch.no_grad():
             out = self.model(torch.from_numpy(self._scale(X)).to(DEVICE)).cpu().numpy()
@@ -228,12 +269,13 @@ def forecast(hub, panel, target, config, verbose=True):
     """Seed-ensembled, calibrated forecast from the latest week with data.
 
     config: {'seeds': [...], 'calibration': {target: [factor per horizon]},
-             'refit': bool, 'refit_exclude_weeks': int (both optional)}.
+             'refit': bool, 'refit_exclude_weeks': int, 'local_season': [targets] (all optional)}.
     """
     origin = panel.latest_origin(target)
     deltas, keys = [], None
     for seed in config['seeds']:
-        model = PooledHybForecaster(hub, target, seed=seed).fit(
+        model = PooledHybForecaster(hub, target, seed=seed,
+                                    local_season=target in config.get('local_season', [])).fit(
             panel, origin, verbose=verbose, refit=config.get('refit', False),
             refit_exclude_weeks=config.get('refit_exclude_weeks', 0))
         k, d = model.predict_delta(panel, origin)

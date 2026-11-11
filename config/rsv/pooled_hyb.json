@@ -1,6 +1,6 @@
 {
   "model_id": "DMAPRIME-HYB",
-  "model_version": "1.0",
+  "model_version": "1.1",
   "seeds": [
     0,
     1,
@@ -9,10 +9,10 @@
   "refit": false,
   "calibration": {
     "wk inc rsv hosp": [
-      1.0,
+      1.2,
+      1.2,
       1.1,
-      1.1,
-      1.1
+      1.0
     ],
     "wk inc rsv prop ed visits": [
       1.4,
@@ -21,5 +21,8 @@
       1.8
     ]
   },
-  "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping"
+  "local_season": [
+    "wk inc rsv hosp"
+  ],
+  "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping; local_season: targets whose inputs include each location's typical peak-week phase"
 }

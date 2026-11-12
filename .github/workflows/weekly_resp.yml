@@ -10,10 +10,11 @@
 # falls back to FORK_TOKEN when that token covers them), PR_TOKEN (opens the PRs; its account must be in the
 # model metadata's designated_github_users for the hubs to merge them automatically).
 #
-# Triggers: every 20 minutes on Wednesdays and Thursdays (data usually come on Wednesday, a day later in
-# holiday weeks; submissions are due Wednesday 23:00 ET, and the file check refuses a file outside the
-# hub's submission window), after every completed weekly-metrocast or weekly-flusight run (the MetroCast
-# run is started by hand on Wednesday afternoons, and GitHub's schedule is unreliable), and by hand.
+# Triggers: every 20 minutes on Wednesdays, 14:07-02:47 UTC (US Eastern daytime and evening; submissions
+# are due Wednesday 23:00 ET, and the file check refuses a file outside the hub's submission window; in a
+# holiday week with Thursday data, run by hand), after every completed weekly-metrocast or weekly-flusight
+# run (the MetroCast run is started by hand on Wednesday afternoons, and GitHub's schedule is unreliable),
+# and by hand.
 # A quick check (automation/resp_ready.py, standard library only) stops in seconds when this week is done
 # or the hub's data have not changed since Monday.
 #
@@ -28,8 +29,8 @@ name: weekly-resp
 
 on:
   schedule:
-    - cron: '7,27,47 14-23 * * 3,4'
-    - cron: '7,27,47 0-2 * * 4,5'
+    - cron: '7,27,47 14-23 * * 3'
+    - cron: '7,27,47 0-2 * * 4'
   workflow_run:
     workflows: [weekly-metrocast, weekly-flusight]
     types: [completed]

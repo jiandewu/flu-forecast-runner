@@ -1,0 +1,107 @@
+{
+  "created_at": "2026-11-12T18:36:19+00:00",
+  "hub": "metrocast",
+  "model": "pooled_obshyb",
+  "reference_date": "2026-11-14",
+  "submission": {
+    "file": "2026-11-14-DMAPRIME-ObsHYB.parquet",
+    "sha256": "9c8a4d016ea4a3a99805a9611f42c35c70aaf37a9d0d0755508aca96047f3e92"
+  },
+  "git_commit": "7724764c2abefe7ad542d4273b254c0da1853e53",
+  "git_dirty": false,
+  "config": {
+    "model_id": "DMAPRIME-ObsHYB",
+    "model_version": "1.0",
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "calibration": {
+      "Flu ED visits pct": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "flag_inputs": true,
+    "flag_train": "none",
+    "val": [
+      "recent",
+      "last_season"
+    ],
+    "copula": "gaussian",
+    "sample_seed": 0,
+    "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3 (1.0: no widening); flag_inputs: reliability flags of the own series as inputs; flag_train: 'drop' leaves out training windows with flagged label weeks, 'none' keeps them; val: early-stopping mode(s), 'recent' and/or 'last_season', forecasts of all modes averaged; copula: 'gaussian' (correlation of validation errors), 'independent' or 'comonotone'; sample_seed: seed of the copula draws"
+  },
+  "data_files": {
+    "latest-data.csv": "4544846fef623f40ebbcd8510d24ce9062cba1a2c920d35f127ea2b01151a83a",
+    "locations.csv": "f4f3a41735e1d80ec33f534f7833fdffccd3830e91635f717b458965c088076a",
+    "tasks.json": "5b50167cfc99723b31a1cda94d3361380f7526a4ee61148d19dd8fab0e479fa5",
+    "nssp.parquet": "3da103338a5771429cd7af12a32eab451d23a09a8a8d62bb08859db17ba2bfe7",
+    "nssp_thresholds.csv": "0a51ba6a35d35251ee711043d53da2690a30040ec591d6a3eb1f3274c7ef973c"
+  },
+  "argv": [
+    "automation.metrocast_weekly",
+    "combine"
+  ],
+  "synced": false,
+  "versions": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "torch": "2.10.0+cpu",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39"
+  },
+  "parts": [
+    {
+      "val": "recent",
+      "seed": 0,
+      "data_through": "2026-11-07",
+      "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX512"
+    },
+    {
+      "val": "recent",
+      "seed": 1,
+      "data_through": "2026-11-07",
+      "cpu": "AMD EPYC 9V45 96-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX512"
+    },
+    {
+      "val": "recent",
+      "seed": 2,
+      "data_through": "2026-11-07",
+      "cpu": "AMD EPYC 9V45 96-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX512"
+    },
+    {
+      "val": "last_season",
+      "seed": 0,
+      "data_through": "2026-11-07",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX2"
+    },
+    {
+      "val": "last_season",
+      "seed": 1,
+      "data_through": "2026-11-07",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX512"
+    },
+    {
+      "val": "last_season",
+      "seed": 2,
+      "data_through": "2026-11-07",
+      "cpu": "AMD EPYC 9V45 96-Core Processor",
+      "torch_threads": 2,
+      "torch_cpu_capability": "AVX512"
+    }
+  ]
+}

@@ -1,17 +1,17 @@
 {
-  "created_at": "2026-11-12T18:36:19+00:00",
+  "created_at": "2026-11-12T20:43:43+00:00",
   "hub": "metrocast",
   "model": "pooled_obshyb",
   "reference_date": "2026-11-14",
   "submission": {
     "file": "2026-11-14-DMAPRIME-ObsHYB.parquet",
-    "sha256": "9c8a4d016ea4a3a99805a9611f42c35c70aaf37a9d0d0755508aca96047f3e92"
+    "sha256": "9d17d13c3934954a16d97b374633e65704230deb9f571c2a23d46b38c5f4c0cc"
   },
-  "git_commit": "7724764c2abefe7ad542d4273b254c0da1853e53",
+  "git_commit": "ab4110928b80d9ceb5f63a794c2bcb9c0169c1a6",
   "git_dirty": false,
   "config": {
     "model_id": "DMAPRIME-ObsHYB",
-    "model_version": "1.0",
+    "model_version": "1.2",
     "seeds": [
       0,
       1,
@@ -19,10 +19,10 @@
     ],
     "calibration": {
       "Flu ED visits pct": [
-        1.0,
-        1.0,
-        1.0,
-        1.0
+        1.3,
+        1.3,
+        1.3,
+        1.3
       ]
     },
     "flag_inputs": true,
@@ -44,7 +44,8 @@
   },
   "argv": [
     "automation.metrocast_weekly",
-    "combine"
+    "combine",
+    "--force"
   ],
   "synced": false,
   "versions": {
@@ -59,7 +60,7 @@
       "val": "recent",
       "seed": 0,
       "data_through": "2026-11-07",
-      "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
       "torch_threads": 2,
       "torch_cpu_capability": "AVX512"
     },
@@ -67,9 +68,9 @@
       "val": "recent",
       "seed": 1,
       "data_through": "2026-11-07",
-      "cpu": "AMD EPYC 9V45 96-Core Processor",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
       "torch_threads": 2,
-      "torch_cpu_capability": "AVX512"
+      "torch_cpu_capability": "AVX2"
     },
     {
       "val": "recent",
@@ -83,7 +84,7 @@
       "val": "last_season",
       "seed": 0,
       "data_through": "2026-11-07",
-      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
       "torch_threads": 2,
       "torch_cpu_capability": "AVX2"
     },
@@ -91,9 +92,9 @@
       "val": "last_season",
       "seed": 1,
       "data_through": "2026-11-07",
-      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "cpu": "AMD EPYC 7763 64-Core Processor",
       "torch_threads": 2,
-      "torch_cpu_capability": "AVX512"
+      "torch_cpu_capability": "AVX2"
     },
     {
       "val": "last_season",

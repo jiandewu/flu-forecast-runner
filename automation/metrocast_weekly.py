@@ -137,9 +137,10 @@ def load_ed_part(mode, seed):
                  z[f'ed_deltas{i}']) for i in range(n)]
 
 
-def write_ed(panel, origin, ed_preds, corrs, run_dir):
+def write_ed(panel, origin, ed_preds, corrs, run_dir, widen=None):
     """Seed-averaged quantiles of the FluSight ED series that are current (lag 0) to run_dir/ED_FILE,
-    as proportions (the FluSight unit). Returns the number of locations written."""
+    as proportions (the FluSight unit), with the config's spread calibration (widen, per horizon) as
+    for the MetroCast submission. Returns the number of locations written."""
     if not ed_preds or not all(ed_preds):
         return 0
     slug_of = {loc: s for s, loc in ed_locations(panel).items()}
@@ -150,7 +151,8 @@ def write_ed(panel, origin, ed_preds, corrs, run_dir):
             continue   # a week behind: FluSight keeps its own forecast there
         cols = [panel.locations.index(l) for l in keys['location']]
         z_last = panel.z[hub.TARGET][o, cols]
-        values = from_z(z_last[:, None, None] + np.sort(deltas, axis=2), spec) / 100.0
+        deltas = po.calibrate(hub, np.sort(deltas, axis=2), widen)
+        values = from_z(z_last[:, None, None] + deltas, spec) / 100.0
         for j, loc in enumerate(keys['location']):
             for h in range(hub.HORIZONS):
                 rows.append(pd.DataFrame({
@@ -187,7 +189,8 @@ def cmd_combine(args, summary):
     path = hub.write_submission([fc], config['model_id'], args.out)
     path = forecast.record_run(hub, MODEL, config, path, types.SimpleNamespace(no_sync=True))
     # FluSight ED: written before anything can stop the run, so FluSight gets it even if the upload fails
-    n_ed = 0 if fallback else write_ed(panel, origin, ed_preds, corrs, os.path.dirname(path))
+    n_ed = 0 if fallback else write_ed(panel, origin, ed_preds, corrs, os.path.dirname(path),
+                                         config.get('calibration', {}).get(hub.TARGET))
     summary.append(f'FluSight ED: {n_ed} locations in {ED_FILE}' if n_ed else
                    f'WARNING: no {ED_FILE} for FluSight' + (' (fallback)' if fallback else ''))
     run_json = os.path.join(os.path.dirname(path), 'run.json')

@@ -1,13 +1,13 @@
 {
-  "created_at": "2026-11-12T18:45:46+00:00",
+  "created_at": "2026-11-12T20:55:21+00:00",
   "hub": "flusight",
   "model": "pooled_hyb",
   "reference_date": "2026-11-14",
   "submission": {
     "file": "2026-11-14-DMAPRIME-HYB.csv",
-    "sha256": "a03b601e3b9cacfaf4f9bbd3ed81b1cc6d0b996dd61240c69aa8422d507448c6"
+    "sha256": "8514a9b700e606b01e42cac803227fb96c4815d099d070cd744e47bf8f0ec140"
   },
-  "git_commit": "7724764c2abefe7ad542d4273b254c0da1853e53",
+  "git_commit": "ab4110928b80d9ceb5f63a794c2bcb9c0169c1a6",
   "git_dirty": false,
   "config": {
     "model_id": "DMAPRIME-HYB",
@@ -40,10 +40,8 @@
     "target-hospital-admissions.csv": "0c4ebc1669f777f9d7d8cea94a54ba02060d3653ada806d092fc2522221ec90f",
     "locations.csv": "80aaa24750044a837e063812a1d0a22339c8b3a92513f71a23dac613eaaa29e0"
   },
-  "argv": [
-    "--no-sync"
-  ],
-  "synced": false,
+  "argv": [],
+  "synced": true,
   "versions": {
     "python": "3.14.2",
     "numpy": "2.4.1",
@@ -53,9 +51,9 @@
   },
   "ed_obshyb": {
     "file": "obshyb_ed.csv",
-    "sha256": "97238631a2fe0ba7d3deb00d56781ebda4d5d5cbe8839852635fe84a162fb2e8",
+    "sha256": "ee28e0af027cc1f8278bb9d4860a4ea616dc1e731588d6d520bb266ec513bc6b",
     "branch": "runs-metrocast",
-    "commit": "b01282d747228dd399a7168bea5a6d8ba961b8e4",
+    "commit": "a1d48d2af7a8cede3d73ef6525f72dfb24c3173c",
     "replaced": [
       "01",
       "02",

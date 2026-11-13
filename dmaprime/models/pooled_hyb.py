@@ -12,6 +12,10 @@ Inputs per week of the 10-week window (all leakage-free for a given cutoff):
     optional (config 'local_season'): sin/cos of the week relative to the location's typical peak
     week (peak_phase: circular mean of past seasons' peak weeks of the target and aux)
 
+Early stopping (config 'val', per target): 'recent' (default) validates on the most recent
+VAL_WEEKS anchor weeks, 'last_season' on the previous season's October-May windows (held out from
+training); a list of modes trains every seed with each and averages their forecasts.
+
 Hub-specific settings (targets, quantile levels, horizons, national location) come from the
 `hub` module passed in; see dmaprime/hubs/__init__.py.
 """
@@ -53,6 +57,23 @@ def _level(z, cutoff):
         mu = np.nanmean(hist, axis=0)
         sd = np.nanstd(hist, axis=0)
     return (z - mu) / np.where(np.isfinite(sd) & (sd > 1e-3), sd, 1.0)
+
+
+def validation_mask(panel, cutoff, keys, mode):
+    """Windows held out for early stopping.
+
+    'recent': the most recent VAL_WEEKS anchor weeks (all locations); 'last_season': the anchors of
+    the previous season's October-May (falls back to 'recent' when there is none)."""
+    if mode == 'last_season':
+        date = panel.dates[cutoff]
+        season = date.year if date.month >= 8 else date.year - 1
+        anchor_dates = panel.dates[keys['anchor'].to_numpy()]
+        mask = np.asarray((anchor_dates >= pd.Timestamp(season - 1, 10, 1)) & (anchor_dates <= pd.Timestamp(season, 5, 31)))
+        if mask.any():
+            return mask
+    elif mode != 'recent':
+        raise ValueError(f'unknown val mode {mode}')
+    return (keys['anchor'] > keys['anchor'].max() - VAL_WEEKS).to_numpy()
 
 
 def peak_phase(panel, series, cutoff):
@@ -145,11 +166,14 @@ def pinball_loss(preds, target, quantiles):
 class PooledHybForecaster:
     """Feature scaler + HybridCNNForecaster trained on all locations for one target of a hub."""
 
-    def __init__(self, hub, target, seed=0, local_season=None):
+    def __init__(self, hub, target, seed=0, local_season=None, val='recent'):
         self.hub = hub
         self.target = target
         self.seed = seed
         self.local_season = LOCAL_SEASON if local_season is None else bool(local_season)
+        if val not in ('recent', 'last_season'):
+            raise ValueError(f'unknown val mode {val}')
+        self.val = val
         self.model = None
         self.mean = self.std = None
 
@@ -174,7 +198,7 @@ class PooledHybForecaster:
             optimizer.step()
 
     def fit(self, panel, cutoff, verbose=False, refit=False, refit_exclude_weeks=0):
-        """Train with early stopping on the most recent VAL_WEEKS anchor weeks.
+        """Train with early stopping on the validation windows of self.val (validation_mask).
 
         refit: afterwards retrain from scratch on all windows (including the validation weeks)
         for the best epoch count, replaying the learning-rate schedule of the first run.
@@ -182,6 +206,8 @@ class PooledHybForecaster:
         weeks before cutoff (recent real-time data is often still incomplete).
         """
         hub = self.hub
+        if refit and self.val != 'recent':
+            raise ValueError('refit replays the epochs chosen on the recent weeks; use val recent')
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
         anchors = range(INPUT_WINDOW, cutoff - hub.HORIZONS + 1)
@@ -194,8 +220,7 @@ class PooledHybForecaster:
         self.std[self.std < 1e-6] = 1.0
         X = self._scale(X)
 
-        # Time-based holdout: the most recent anchor weeks, across all locations
-        val_mask = (keys['anchor'] > keys['anchor'].max() - VAL_WEEKS).to_numpy()
+        val_mask = validation_mask(panel, cutoff, keys, self.val)
         train_ds = TensorDataset(torch.from_numpy(X[~val_mask]), torch.from_numpy(Y[~val_mask]))
         X_val = torch.from_numpy(X[val_mask]).to(DEVICE)
         Y_val = torch.from_numpy(Y[val_mask]).to(DEVICE)
@@ -269,23 +294,30 @@ def forecast(hub, panel, target, config, verbose=True):
     """Seed-ensembled, calibrated forecast from the latest week with data.
 
     config: {'seeds': [...], 'calibration': {target: [factor per horizon]},
-             'refit': bool, 'refit_exclude_weeks': int, 'local_season': [targets] (all optional)}.
+             'refit': bool, 'refit_exclude_weeks': int, 'local_season': [targets],
+             'val': {target: mode or [modes]} (all optional)}.
+    With a list of early-stopping modes, every seed is trained once per mode and all forecasts
+    (z-change quantiles) are averaged.
     """
     origin = panel.latest_origin(target)
+    modes = config.get('val', {}).get(target, 'recent')
+    modes = modes if isinstance(modes, list) else [modes]
     deltas, keys = [], None
-    for seed in config['seeds']:
-        model = PooledHybForecaster(hub, target, seed=seed,
-                                    local_season=target in config.get('local_season', [])).fit(
-            panel, origin, verbose=verbose, refit=config.get('refit', False),
-            refit_exclude_weeks=config.get('refit_exclude_weeks', 0))
-        k, d = model.predict_delta(panel, origin)
-        if keys is not None and not k.equals(keys):
-            raise RuntimeError(f'{target}: seeds produced different locations')
-        keys = k
-        deltas.append(d)
+    for mode in modes:
+        for seed in config['seeds']:
+            model = PooledHybForecaster(hub, target, seed=seed, val=mode,
+                                        local_season=target in config.get('local_season', [])).fit(
+                panel, origin, verbose=verbose, refit=config.get('refit', False),
+                refit_exclude_weeks=config.get('refit_exclude_weeks', 0))
+            k, d = model.predict_delta(panel, origin)
+            if keys is not None and not k.equals(keys):
+                raise RuntimeError(f'{target}: seeds produced different locations')
+            keys = k
+            deltas.append(d)
     widen = config['calibration'][target]
     values = delta_values(hub, last_z(panel, target, origin, keys), target, np.mean(deltas, axis=0), widen=widen)
     if verbose:
-        print(f'{target}: data through {panel.dates[origin]:%Y-%m-%d}, {len(keys)} locations, widen {widen}')
+        print(f'{target}: data through {panel.dates[origin]:%Y-%m-%d}, {len(keys)} locations, '
+              f'early stopping {modes}, widen {widen}')
     return Forecast(target=target, last_date=panel.dates[origin], locations=list(keys['location']),
                     output_type=OUTPUT_TYPE, output_type_ids=hub.QUANTILES, values=values)

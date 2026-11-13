@@ -1,12 +1,18 @@
 {
   "model_id": "DMAPRIME-HYB",
-  "model_version": "3.0",
+  "model_version": "3.1",
   "seeds": [
     0,
     1,
     2
   ],
   "refit": false,
+  "val": {
+    "wk inc flu hosp": [
+      "recent",
+      "last_season"
+    ]
+  },
   "calibration": {
     "wk inc flu hosp": [
       1.2,
@@ -22,5 +28,5 @@
     ]
   },
   "ed_model": "obshyb",
-  "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping; ed_model: \"obshyb\" submits the ED target from the DMAPRIME-ObsHYB networks (the Flu MetroCast model) instead of this model, except where they have no forecast; \"hyb\" or absent: this model"
+  "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping; ed_model: \"obshyb\" submits the ED target from the DMAPRIME-ObsHYB networks (the Flu MetroCast model) instead of this model, except where they have no forecast; \"hyb\" or absent: this model; val: early stopping per target, \"recent\" (default, the last 8 anchor weeks) or \"last_season\" (the previous season's October-May), a list trains every seed with each and averages them"
 }

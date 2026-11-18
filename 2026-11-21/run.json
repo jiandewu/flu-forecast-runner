@@ -1,0 +1,60 @@
+{
+  "created_at": "2026-11-18T21:54:10+00:00",
+  "hub": "rsv",
+  "model": "pooled_hyb",
+  "reference_date": "2026-11-21",
+  "submission": {
+    "file": "2026-11-21-DMAPRIME-HYB.csv",
+    "sha256": "c00f0d060c4a37a5342fc806853f8f332ab65831e6edb4ef2c5f8a4b42d78b27"
+  },
+  "git_commit": "b5e3e34c092a83b44359128fa2ad6c65650b3446",
+  "git_dirty": false,
+  "config": {
+    "model_id": "DMAPRIME-HYB",
+    "model_version": "1.1",
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "refit": false,
+    "calibration": {
+      "wk inc rsv hosp": [
+        1.2,
+        1.2,
+        1.1,
+        1.0
+      ],
+      "wk inc rsv prop ed visits": [
+        1.4,
+        1.7,
+        1.8,
+        1.8
+      ]
+    },
+    "local_season": [
+      "wk inc rsv hosp"
+    ],
+    "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping; local_season: targets whose inputs include each location's typical peak-week phase"
+  },
+  "data_files": {
+    "target-hospital-admissions.csv": "ab6dd2673bf264bebc3b7a155d0f333f45e37cb80eaf110e33780224fc995b97",
+    "target-ed-visits-prop.csv": "a555f58a55c8156fcf45fc946543672bbd72081cde8370543b625ecd94d0bf30",
+    "locations.csv": "96b14b7376cd5ba6a4dd44b0cae860fdb1a40ddec776328c1b3c39c8c14b0636"
+  },
+  "argv": [
+    "--hub",
+    "rsv",
+    "--model",
+    "pooled_hyb",
+    "--no-sync"
+  ],
+  "synced": false,
+  "versions": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "torch": "2.10.0+cpu",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39"
+  }
+}

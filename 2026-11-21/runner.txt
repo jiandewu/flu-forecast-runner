@@ -1,0 +1,3 @@
+cpu: Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
+torch_cpu_capability: AVX512
+image: ubuntu24 20261111.370.1

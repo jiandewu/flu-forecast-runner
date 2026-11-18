@@ -1,0 +1,57 @@
+{
+  "created_at": "2026-11-18T21:55:46+00:00",
+  "hub": "covid",
+  "model": "pooled_hyb",
+  "reference_date": "2026-11-21",
+  "submission": {
+    "file": "2026-11-21-DMAPRIME-HYB.csv",
+    "sha256": "c4448a9cbecd37d6da05b02043520aefbef6c8c149f0a2e0698951e333adef9c"
+  },
+  "git_commit": "b5e3e34c092a83b44359128fa2ad6c65650b3446",
+  "git_dirty": false,
+  "config": {
+    "model_id": "DMAPRIME-HYB",
+    "model_version": "1.1",
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "refit": false,
+    "calibration": {
+      "wk inc covid hosp": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "wk inc covid prop ed visits": [
+        1.1,
+        1.2,
+        1.3,
+        1.3
+      ]
+    },
+    "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping"
+  },
+  "data_files": {
+    "target-hospital-admissions.csv": "c505d966178e0021ea6e64056a1370c411a1f3260d748ce5d9d0732e9d882102",
+    "target-ed-visits-prop.csv": "8efb311a5cb519343b68a9c861764cb45546da828ed2758af1c7a981648975c5",
+    "locations.csv": "96b14b7376cd5ba6a4dd44b0cae860fdb1a40ddec776328c1b3c39c8c14b0636"
+  },
+  "argv": [
+    "--hub",
+    "covid",
+    "--model",
+    "pooled_hyb",
+    "--no-sync"
+  ],
+  "synced": false,
+  "versions": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "torch": "2.10.0+cpu",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39"
+  }
+}

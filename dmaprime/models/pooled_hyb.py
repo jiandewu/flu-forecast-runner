@@ -11,10 +11,16 @@ Inputs per week of the 10-week window (all leakage-free for a given cutoff):
     sin/cos of the ISO week
     optional (config 'local_season'): sin/cos of the week relative to the location's typical peak
     week (peak_phase: circular mean of past seasons' peak weeks of the target and aux)
+    optional (level_gap 'nat'): the national target's standardized level and the location's
+    standardized level minus it
 
 Early stopping (config 'val', per target): 'recent' (default) validates on the most recent
 VAL_WEEKS anchor weeks, 'last_season' on the previous season's October-May windows (held out from
 training); a list of modes trains every seed with each and averages their forecasts.
+
+Pool (config 'pool', per target, optional): a second set of networks with its own options
+(level_gap, val, seeds) is trained and averaged over its seeds; the forecast is the linear pool
+(mixture) of the two distributions, with the second's weight given per horizon, before widening.
 
 Hub-specific settings (targets, quantile levels, horizons, national location) come from the
 `hub` module passed in; see dmaprime/hubs/__init__.py.
@@ -46,6 +52,8 @@ INPUT_NOISE = 0.01
 # Default of the local-season inputs when a forecaster is created without local_season
 LOCAL_SEASON = False
 PEAK_MIN_WEEKS = 40    # a season (August-July) counts for the typical peak week with this many observed weeks
+LEVEL_GAPS = (None, 'nat')
+POOL_GRID = 400        # points on which the mixture's distribution function is evaluated
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -104,7 +112,7 @@ def peak_phase(panel, series, cutoff):
     return np.where(n > 0, np.arctan2(sin_sum, cos_sum), np.nan)
 
 
-def build_windows(hub, panel, target, cutoff, anchors, local_season=False):
+def build_windows(hub, panel, target, cutoff, anchors, local_season=False, level_gap=None):
     """Inputs (and targets where known) for every (anchor, location) with a complete window.
 
     Only data at or before `cutoff` is used for location statistics; inputs use data up to
@@ -148,6 +156,8 @@ def build_windows(hub, panel, target, cutoff, anchors, local_season=False):
             cols = [z_win[:, l] - z[t, l], dz_win[:, l], lev[win, l], aux_feats, nat, nat_dz, panel.season[win]]
             if local_season:
                 cols.append(local[win, l])
+            if level_gap == 'nat':   # national standardized level, and the location's level minus it
+                cols += [lev[win, nat_col], lev[win, l] - lev[win, nat_col]]
             feats = np.column_stack(cols)
             y = (future[:, l] - z[t, l]) if future is not None and len(future) == H else np.full(H, np.nan)
             X.append(feats)
@@ -166,7 +176,10 @@ def pinball_loss(preds, target, quantiles):
 class PooledHybForecaster:
     """Feature scaler + HybridCNNForecaster trained on all locations for one target of a hub."""
 
-    def __init__(self, hub, target, seed=0, local_season=None, val='recent'):
+    def __init__(self, hub, target, seed=0, local_season=None, val='recent', level_gap=None):
+        if level_gap not in LEVEL_GAPS:
+            raise ValueError(f'unknown level_gap {level_gap}')
+        self.level_gap = level_gap
         self.hub = hub
         self.target = target
         self.seed = seed
@@ -211,7 +224,7 @@ class PooledHybForecaster:
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
         anchors = range(INPUT_WINDOW, cutoff - hub.HORIZONS + 1)
-        X, Y, keys = build_windows(hub, panel, self.target, cutoff, anchors, self.local_season)
+        X, Y, keys = build_windows(hub, panel, self.target, cutoff, anchors, self.local_season, self.level_gap)
         ok = np.isfinite(Y).all(axis=1)
         X, Y, keys = X[ok], Y[ok], keys[ok]
 
@@ -267,7 +280,7 @@ class PooledHybForecaster:
 
     def predict_delta(self, panel, origin):
         """Quantiles of z change for every location at origin index: (keys, deltas (N, H, Q))."""
-        X, _, keys = build_windows(self.hub, panel, self.target, origin, [origin], self.local_season)
+        X, _, keys = build_windows(self.hub, panel, self.target, origin, [origin], self.local_season, self.level_gap)
         self.model.eval()
         with torch.no_grad():
             out = self.model(torch.from_numpy(self._scale(X)).to(DEVICE)).cpu().numpy()
@@ -290,22 +303,38 @@ def delta_values(hub, z_last, target, deltas, widen=None):
     return np.sort(from_z(np.asarray(z_last).reshape(-1, 1, 1) + deltas, hub.TARGETS[target]), axis=2)
 
 
-def forecast(hub, panel, target, config, verbose=True):
-    """Seed-ensembled, calibrated forecast from the latest week with data.
+def linear_pool(qa, qb, taus, w, grid=POOL_GRID):
+    """Quantiles (..., Q) at levels taus of two distributions -> quantiles of their mixture with
+    weight w on the second. Each quantile function is extended linearly to levels 0 and 1 from
+    its end segments; computed in float64."""
+    shape = qa.shape
+    qa = np.asarray(qa, dtype=np.float64).reshape(-1, shape[-1])
+    qb = np.asarray(qb, dtype=np.float64).reshape(-1, shape[-1])
+    if w == 0 or w == 1:
+        return (qb if w == 1 else qa).reshape(shape).copy()
+    taus = np.asarray(taus, dtype=float)
+    t = np.concatenate([[0.0], taus, [1.0]])
 
-    config: {'seeds': [...], 'calibration': {target: [factor per horizon]},
-             'refit': bool, 'refit_exclude_weeks': int, 'local_season': [targets],
-             'val': {target: mode or [modes]} (all optional)}.
-    With a list of early-stopping modes, every seed is trained once per mode and all forecasts
-    (z-change quantiles) are averaged.
-    """
-    origin = panel.latest_origin(target)
-    modes = config.get('val', {}).get(target, 'recent')
-    modes = modes if isinstance(modes, list) else [modes]
+    def extend(q):
+        lo = q[:, :1] - (q[:, 1:2] - q[:, :1]) * taus[0] / (taus[1] - taus[0])
+        hi = q[:, -1:] + (q[:, -1:] - q[:, -2:-1]) * (1 - taus[-1]) / (taus[-1] - taus[-2])
+        return np.concatenate([lo, q, hi], axis=1)
+
+    ea, eb = extend(qa), extend(qb)
+    out = np.empty_like(qa)
+    for i in range(len(qa)):
+        x = np.linspace(min(ea[i, 0], eb[i, 0]), max(ea[i, -1], eb[i, -1]), grid)
+        cdf = (1 - w) * np.interp(x, ea[i], t, left=0.0, right=1.0) + w * np.interp(x, eb[i], t, left=0.0, right=1.0)
+        out[i] = np.interp(taus, np.maximum.accumulate(cdf), x)
+    return out.reshape(shape)
+
+
+def seed_mean(hub, panel, target, origin, config, modes, seeds, level_gap=None, verbose=True):
+    """Train every (early-stopping mode, seed) and average their z-change quantiles: (keys, (N, H, Q))."""
     deltas, keys = [], None
     for mode in modes:
-        for seed in config['seeds']:
-            model = PooledHybForecaster(hub, target, seed=seed, val=mode,
+        for seed in seeds:
+            model = PooledHybForecaster(hub, target, seed=seed, val=mode, level_gap=level_gap,
                                         local_season=target in config.get('local_season', [])).fit(
                 panel, origin, verbose=verbose, refit=config.get('refit', False),
                 refit_exclude_weeks=config.get('refit_exclude_weeks', 0))
@@ -314,10 +343,49 @@ def forecast(hub, panel, target, config, verbose=True):
                 raise RuntimeError(f'{target}: seeds produced different locations')
             keys = k
             deltas.append(d)
+    return keys, np.mean(deltas, axis=0)
+
+
+def forecast(hub, panel, target, config, verbose=True):
+    """Seed-ensembled, calibrated forecast from the latest week with data.
+
+    config: {'seeds': [...], 'calibration': {target: [factor per horizon]},
+             'refit': bool, 'refit_exclude_weeks': int, 'local_season': [targets],
+             'val': {target: mode or [modes]},
+             'pool': {target: {'weight': [per horizon], 'seeds': [...], 'val': mode or [modes],
+                               'level_gap': 'nat' or null}} (all optional)}.
+    With a list of early-stopping modes, every seed is trained once per mode and all forecasts
+    (z-change quantiles) are averaged. With a pool for the target, a second set of networks is
+    trained with the pool's settings and averaged the same way, and the two distributions are
+    combined by linear_pool with the pool's weight per horizon; the calibration factors then widen
+    the pooled forecast.
+    """
+    origin = panel.latest_origin(target)
+    modes = config.get('val', {}).get(target, 'recent')
+    modes = modes if isinstance(modes, list) else [modes]
+    keys, deltas = seed_mean(hub, panel, target, origin, config, modes, config['seeds'], verbose=verbose)
+    pool = config.get('pool', {}).get(target)
+    if pool:
+        if config.get('refit', False):
+            raise ValueError('pool is not supported with refit')
+        weights = pool['weight']
+        if len(weights) != hub.HORIZONS:
+            raise ValueError(f'{target}: pool weight needs one value per horizon')
+        pool_modes = pool.get('val', 'recent')
+        pool_modes = pool_modes if isinstance(pool_modes, list) else [pool_modes]
+        pool_keys, pool_deltas = seed_mean(hub, panel, target, origin, config, pool_modes, pool['seeds'],
+                                           level_gap=pool.get('level_gap'), verbose=verbose)
+        if not pool_keys.equals(keys):
+            raise RuntimeError(f'{target}: the pool networks produced different locations')
+        taus = np.asarray(hub.QUANTILES, dtype=float)
+        deltas = np.stack([linear_pool(deltas[:, h], pool_deltas[:, h], taus, w=weights[h])
+                           for h in range(hub.HORIZONS)], axis=1)
     widen = config['calibration'][target]
-    values = delta_values(hub, last_z(panel, target, origin, keys), target, np.mean(deltas, axis=0), widen=widen)
+    values = delta_values(hub, last_z(panel, target, origin, keys), target, deltas, widen=widen)
     if verbose:
+        pool_note = (f", pooled with {pool.get('level_gap')} {pool_modes} seeds {pool['seeds']} weight {weights}"
+                     if pool else '')
         print(f'{target}: data through {panel.dates[origin]:%Y-%m-%d}, {len(keys)} locations, '
-              f'early stopping {modes}, widen {widen}')
+              f'early stopping {modes}{pool_note}, widen {widen}')
     return Forecast(target=target, last_date=panel.dates[origin], locations=list(keys['location']),
                     output_type=OUTPUT_TYPE, output_type_ids=hub.QUANTILES, values=values)

@@ -1,0 +1,3 @@
+cpu: Intel(R) Xeon(R) 6975P-C
+torch_cpu_capability: AVX512
+image: ubuntu24 20261111.127.1

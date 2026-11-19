@@ -1,0 +1,78 @@
+{
+  "created_at": "2026-11-19T16:09:30+00:00",
+  "hub": "flusight",
+  "model": "pooled_hyb",
+  "reference_date": "2026-11-21",
+  "submission": {
+    "file": "2026-11-21-DMAPRIME-HYB.csv",
+    "sha256": "fd6cc5a9e89c4c4e1babd34b9c48ed49ea6728ccf347697eebaadfb52429900f"
+  },
+  "git_commit": "44d3fdad8bcf130af8b07c6f984374dca3b0487c",
+  "git_dirty": false,
+  "config": {
+    "model_id": "DMAPRIME-HYB",
+    "model_version": "3.2",
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "refit": false,
+    "val": {
+      "wk inc flu hosp": [
+        "recent",
+        "last_season"
+      ]
+    },
+    "pool": {
+      "wk inc flu hosp": {
+        "level_gap": "nat",
+        "val": "recent",
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "weight": [
+          0.75,
+          0.5,
+          0.25,
+          0.0
+        ]
+      }
+    },
+    "calibration": {
+      "wk inc flu hosp": [
+        1.1,
+        1.2,
+        1.3,
+        1.3
+      ],
+      "wk inc flu prop ed visits": [
+        1.7,
+        1.7,
+        1.5,
+        1.5
+      ]
+    },
+    "ed_model": "obshyb",
+    "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping; ed_model: \"obshyb\" submits the ED target from the DMAPRIME-ObsHYB networks (the Flu MetroCast model) instead of this model, except where they have no forecast; \"hyb\" or absent: this model; val: early stopping per target, \"recent\" (default, the last 8 anchor weeks) or \"last_season\" (the previous season's October-May), a list trains every seed with each and averages them; pool: per target, a second set of networks (its own level_gap, val and seeds) averaged over its seeds and combined with the main forecast as a linear pool (mixture), with the second's weight per horizon 0-3, before the calibration factors widen it; level_gap \"nat\" adds the national standardized level and the location's level minus it as inputs"
+  },
+  "data_files": {
+    "target-ed-visits-prop.csv": "7983ccd9ddfad52c3d9f459fdc864ce2972fd7d4498648758ff0f71f356ce326",
+    "target-hospital-admissions.csv": "bd51bd4121ad0cbbfc5027891b3d03616d2c50e25ee318f6e5d79fc9738a4dcc",
+    "locations.csv": "80aaa24750044a837e063812a1d0a22339c8b3a92513f71a23dac613eaaa29e0"
+  },
+  "argv": [],
+  "synced": true,
+  "versions": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "torch": "2.10.0+cpu",
+    "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39"
+  }
+}

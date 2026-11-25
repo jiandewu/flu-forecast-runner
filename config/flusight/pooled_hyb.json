@@ -1,6 +1,6 @@
 {
   "model_id": "DMAPRIME-HYB",
-  "model_version": "3.2",
+  "model_version": "3.3",
   "seeds": [
     0,
     1,
@@ -48,5 +48,15 @@
     ]
   },
   "ed_model": "obshyb",
-  "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping; ed_model: \"obshyb\" submits the ED target from the DMAPRIME-ObsHYB networks (the Flu MetroCast model) instead of this model, except where they have no forecast; \"hyb\" or absent: this model; val: early stopping per target, \"recent\" (default, the last 8 anchor weeks) or \"last_season\" (the previous season's October-May), a list trains every seed with each and averages them; pool: per target, a second set of networks (its own level_gap, val and seeds) averaged over its seeds and combined with the main forecast as a linear pool (mixture), with the second's weight per horizon 0-3, before the calibration factors widen it; level_gap \"nat\" adds the national standardized level and the location's level minus it as inputs"
+  "holiday_shift": {
+    "wk inc flu hosp": {
+      "christmas": 0.24,
+      "newyear": 0.24
+    },
+    "wk inc flu prop ed visits": {
+      "christmas": 0.24,
+      "newyear": 0.03
+    }
+  },
+  "_comment": "model_version: the hub metadata model_version for this model; calibration: spread multipliers around the median for horizons 0-3, per target; refit: retrain on all windows after early stopping; ed_model: \"obshyb\" submits the ED target from the DMAPRIME-ObsHYB networks (the Flu MetroCast model) instead of this model, except where they have no forecast; \"hyb\" or absent: this model; val: early stopping per target, \"recent\" (default, the last 8 anchor weeks) or \"last_season\" (the previous season's October-May), a list trains every seed with each and averages them; pool: per target, a second set of networks (its own level_gap, val and seeds) averaged over its seeds and combined with the main forecast as a linear pool (mixture), with the second's weight per horizon 0-3, before the calibration factors widen it; level_gap \"nat\" adds the national standardized level and the location's level minus it as inputs; holiday_shift: per target, an upward shift on the model's z scale (log1p(value * scale)) of forecasts whose target week contains Christmas (\"christmas\") or New Year's Day (\"newyear\"); absent: none"
 }

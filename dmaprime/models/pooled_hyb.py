@@ -22,6 +22,9 @@ Pool (config 'pool', per target, optional): a second set of networks with its ow
 (level_gap, val, seeds) is trained and averaged over its seeds; the forecast is the linear pool
 (mixture) of the two distributions, with the second's weight given per horizon, before widening.
 
+Holiday weeks (config 'holiday_shift', per target, optional): forecasts whose target week contains
+Christmas or New Year's Day are shifted up on z (dmaprime/models/holiday.py).
+
 Hub-specific settings (targets, quantile levels, horizons, national location) come from the
 `hub` module passed in; see dmaprime/hubs/__init__.py.
 """
@@ -34,6 +37,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 
 from dmaprime.data.panel import from_z
+from dmaprime.models import holiday
 from dmaprime.models.base import Forecast
 from dmaprime.models.nets import HybridCNNForecaster
 
@@ -353,7 +357,8 @@ def forecast(hub, panel, target, config, verbose=True):
              'refit': bool, 'refit_exclude_weeks': int, 'local_season': [targets],
              'val': {target: mode or [modes]},
              'pool': {target: {'weight': [per horizon], 'seeds': [...], 'val': mode or [modes],
-                               'level_gap': 'nat' or null}} (all optional)}.
+                               'level_gap': 'nat' or null}},
+             'holiday_shift': {target: {'christmas': z shift, 'newyear': z shift}} (all optional)}.
     With a list of early-stopping modes, every seed is trained once per mode and all forecasts
     (z-change quantiles) are averaged. With a pool for the target, a second set of networks is
     trained with the pool's settings and averaged the same way, and the two distributions are
@@ -380,12 +385,15 @@ def forecast(hub, panel, target, config, verbose=True):
         taus = np.asarray(hub.QUANTILES, dtype=float)
         deltas = np.stack([linear_pool(deltas[:, h], pool_deltas[:, h], taus, w=weights[h])
                            for h in range(hub.HORIZONS)], axis=1)
+    shift = holiday.shifts(config, target, panel.dates[origin], hub.HORIZONS)
+    deltas = holiday.apply(deltas, shift)
     widen = config['calibration'][target]
     values = delta_values(hub, last_z(panel, target, origin, keys), target, deltas, widen=widen)
     if verbose:
         pool_note = (f", pooled with {pool.get('level_gap')} {pool_modes} seeds {pool['seeds']} weight {weights}"
                      if pool else '')
+        shift_note = f', {holiday.describe(shift)}' if shift is not None else ''
         print(f'{target}: data through {panel.dates[origin]:%Y-%m-%d}, {len(keys)} locations, '
-              f'early stopping {modes}{pool_note}, widen {widen}')
+              f'early stopping {modes}{pool_note}, widen {widen}{shift_note}')
     return Forecast(target=target, last_date=panel.dates[origin], locations=list(keys['location']),
                     output_type=OUTPUT_TYPE, output_type_ids=hub.QUANTILES, values=values)

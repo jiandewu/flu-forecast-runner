@@ -30,6 +30,9 @@ predicted quantiles, mapped to normal scores, correlated across horizons. For ea
 N correlated normal vectors are drawn; at each horizon the N values are the quantiles at levels
 (i + 0.5) / N assigned in the rank order of the draws, so every horizon's marginal is the
 forecast distribution exactly and the ranks carry the dependence.
+
+Holiday weeks (config 'holiday_shift', optional): forecasts whose target week contains Christmas or
+New Year's Day are shifted up on z before sampling (dmaprime/models/holiday.py).
 """
 import numpy as np
 import pandas as pd
@@ -38,6 +41,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 
 from dmaprime.data.panel import from_z
+from dmaprime.models import holiday
 from dmaprime.models.base import Forecast
 from dmaprime.models.nets import HybridCNNForecaster
 from dmaprime.models.pooled_hyb import _level, pinball_loss
@@ -435,9 +439,15 @@ def align_to_nssp(panel, target, origin, max_lag=None):
 
 
 def groups_forecast(hub, panel, target, config, origin, groups, verbose=True):
-    """Sample trajectories for every group of predict_groups / combine_predictions -> Forecast."""
+    """Sample trajectories for every group of predict_groups / combine_predictions -> Forecast.
+    Every group's horizons are the target weeks after origin (lag outputs keep them), so the
+    holiday shift follows panel.dates[origin]."""
+    shift = holiday.shifts(config, target, panel.dates[origin], hub.HORIZONS)
+    if shift is not None and verbose:
+        print(f'{target}: {holiday.describe(shift)}')
     locations, values = [], []
     for o, keys, deltas, corr in groups:
+        deltas = holiday.apply(deltas, shift)
         values.append(to_samples(hub, panel, target, o, keys, deltas, corr, config))
         locations += list(keys['location'])
         if verbose:

@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-11-25T23:08:05+00:00",
+  "created_at": "2026-11-26T01:49:04+00:00",
   "hub": "rsv",
   "model": "pooled_hyb",
   "reference_date": "2026-11-28",
@@ -7,7 +7,7 @@
     "file": "2026-11-28-DMAPRIME-HYB.csv",
     "sha256": "271b47569c28874b2e7eec380f6c305ed12865314d80a472339bd40d017040fb"
   },
-  "git_commit": "4c85fac3da56bc71600d266d58021be1d8ce5de4",
+  "git_commit": "4264f902994b4e5fc39ed9d1b5b6317e8d220db7",
   "git_dirty": false,
   "config": {
     "model_id": "DMAPRIME-HYB",
@@ -46,10 +46,9 @@
     "--hub",
     "rsv",
     "--model",
-    "pooled_hyb",
-    "--no-sync"
+    "pooled_hyb"
   ],
-  "synced": false,
+  "synced": true,
   "versions": {
     "python": "3.14.2",
     "numpy": "2.4.1",

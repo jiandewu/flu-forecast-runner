@@ -53,12 +53,18 @@ def _allowed(task_id):
     return (task_id.get('required') or []) + (task_id.get('optional') or [])
 
 
+def _round_for(tasks, ref):
+    """The round whose reference_date list holds ref (a hub may split the season into several rounds,
+    e.g. a holiday week with its own submission window); None when no round has it."""
+    return next((r for r in tasks['rounds']
+                 if ref in _allowed(r['model_tasks'][0]['task_ids']['reference_date'])), None)
+
+
 def check(path, window=True, today=None):
     """Return (errors, notes). The file is fine to upload when errors is empty."""
     errors, notes = [], []
     tasks, warnings = load_tasks()
     notes += warnings
-    round_ = tasks['rounds'][0]
 
     df = pd.read_csv(path, dtype={'location': str, 'reference_date': str, 'target_end_date': str})
     if list(df.columns) != COLUMNS:
@@ -76,8 +82,9 @@ def check(path, window=True, today=None):
         errors.append(f'file name {os.path.basename(path)} does not start with reference_date {ref}')
 
     # Every model task shares the reference_date list
-    if ref not in _allowed(round_['model_tasks'][0]['task_ids']['reference_date']):
-        errors.append(f'reference_date {ref} is not a round in tasks.json')
+    round_ = _round_for(tasks, ref)
+    if round_ is None:
+        return errors + [f'reference_date {ref} is not a round in tasks.json'], notes
     due = round_.get('submissions_due', {})
     if window and due.get('relative_to') == 'reference_date':
         today = today or date.today()
